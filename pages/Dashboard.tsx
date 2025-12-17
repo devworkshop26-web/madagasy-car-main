@@ -1,5 +1,8 @@
 
 
+
+
+
 import React, { useState } from 'react';
 import { UserRole, VehicleType, BadgeLevel, Driver, Vehicle, User, DriverOption, VehicleDocument, AddOn, SupportTicket, TicketCategory, TicketPriority, TicketStatus, PipelineStage } from '../types';
 import { 
@@ -14,7 +17,8 @@ import {
     Eye, MoreHorizontal, Check, Mail, BookOpen, Image as ImageIcon,
     Wifi, Map, Baby, Shield, Music, Coffee, Snowflake, BatteryCharging, ShoppingBag, Umbrella,
     LifeBuoy, PhoneCall, Headphones,
-    Target
+    Target, Camera, Home, CreditCard as CIDIcon, Smartphone, FileBadge,
+    Grid, LayoutList, FilePlus
 } from 'lucide-react';
 import { 
     MOCK_VEHICLES, MOCK_TICKETS, MOCK_TRANSACTIONS, MOCK_USERS_LIST, 
@@ -74,6 +78,121 @@ const EditProfileModal = ({ user, onClose, onSave }: { user: User; onClose: () =
       </div>
     </div>
   );
+};
+
+const TransactionDetailModal = ({ transaction, onClose }: { transaction: any, onClose: () => void }) => {
+    return (
+        <div className="fixed inset-0 bg-black/60 z-[80] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in duration-200">
+            <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                {/* Header */}
+                <div className="bg-secondary-900 text-white p-6 relative">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-secondary-300 text-xs font-bold uppercase tracking-widest mb-1">Reçu de transaction</p>
+                            <h3 className="text-2xl font-black">#{transaction.transactionRef}</h3>
+                            <p className="text-sm text-secondary-200 mt-1">{transaction.date}</p>
+                        </div>
+                        <button onClick={onClose} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
+                            <X size={20} />
+                        </button>
+                    </div>
+                    
+                    {/* Unique Booking ID Badge */}
+                    <div className="absolute -bottom-4 left-6 bg-white shadow-lg border border-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
+                        <FileText size={16} className="text-primary-600"/>
+                        <div>
+                            <span className="block text-[10px] text-gray-400 font-bold uppercase">Réservation Unique</span>
+                            <span className="block text-sm font-mono font-bold text-gray-900">{transaction.bookingRef}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 pt-8 overflow-y-auto custom-scrollbar space-y-6 mt-2">
+                    
+                    {/* Status Badge */}
+                    <div className="flex justify-center">
+                        <div className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 ${transaction.status === 'PAYÉ' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                            {transaction.status === 'PAYÉ' ? <CheckCircle size={16}/> : <Clock size={16}/>}
+                            Statut : {transaction.status === 'PAYÉ' ? 'Paiement Reçu' : 'En attente de virement'}
+                        </div>
+                    </div>
+
+                    {/* Client & Vehicle Info */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                            <p className="text-xs font-bold text-gray-400 uppercase mb-3">Client</p>
+                            <div className="flex items-center gap-3">
+                                <img src={transaction.clientAvatar} alt="" className="w-10 h-10 rounded-full object-cover border border-white shadow-sm"/>
+                                <div>
+                                    <p className="font-bold text-gray-900 text-sm">{transaction.clientName}</p>
+                                    <p className="text-xs text-gray-500">Vérifié</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                            <p className="text-xs font-bold text-gray-400 uppercase mb-3">Véhicule</p>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-primary-600 shadow-sm">
+                                    <Car size={20}/>
+                                </div>
+                                <div>
+                                    <p className="font-bold text-gray-900 text-sm truncate">{transaction.vehicle}</p>
+                                    <p className="text-xs text-gray-500">{transaction.rentalType}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Rental Details */}
+                    <div className="border-t border-dashed border-gray-200 pt-4">
+                         <div className="flex justify-between items-center mb-2">
+                             <span className="text-gray-500 text-sm">Période</span>
+                             <span className="font-bold text-gray-900 text-sm">{transaction.startDate} - {transaction.endDate}</span>
+                         </div>
+                         <div className="flex justify-between items-center mb-2">
+                             <span className="text-gray-500 text-sm">Durée</span>
+                             <span className="font-bold text-gray-900 text-sm">{transaction.duration}</span>
+                         </div>
+                         <div className="flex justify-between items-center">
+                             <span className="text-gray-500 text-sm">Mode de paiement</span>
+                             <span className="font-bold text-secondary-900 text-sm flex items-center gap-1">
+                                 {transaction.paymentMethod === 'MVola' && <Smartphone size={14} className="text-yellow-600"/>}
+                                 {transaction.paymentMethod === 'Orange Money' && <Smartphone size={14} className="text-orange-600"/>}
+                                 {transaction.paymentMethod}
+                             </span>
+                         </div>
+                    </div>
+
+                    {/* Financial Breakdown */}
+                    <div className="bg-gray-50 rounded-2xl p-4 space-y-3 border border-gray-200">
+                        <div className="flex justify-between items-center">
+                            <span className="text-gray-600 text-sm">Montant Total (Brut)</span>
+                            <span className="font-bold text-gray-900">{transaction.gross.toLocaleString()} Ar</span>
+                        </div>
+                        <div className="flex justify-between items-center text-red-500">
+                            <span className="text-sm flex items-center gap-1"><Percent size={14}/> Commission Mcar (15%)</span>
+                            <span className="font-bold">-{transaction.commission.toLocaleString()} Ar</span>
+                        </div>
+                        <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
+                            <span className="font-black text-secondary-900">Net Versé</span>
+                            <span className="font-black text-xl text-green-600">{transaction.net.toLocaleString()} Ar</span>
+                        </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="flex gap-3">
+                        <button className="flex-1 py-3 border border-gray-200 rounded-xl font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2">
+                            <Download size={18}/> PDF
+                        </button>
+                        <button className="flex-1 py-3 bg-secondary-900 text-white rounded-xl font-bold hover:bg-secondary-800 flex items-center justify-center gap-2">
+                            <MessageCircle size={18}/> Contacter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 // --- ADMIN SUB-COMPONENTS ---
@@ -376,25 +495,29 @@ const ClientDashboard = () => {
 const DriverCard: React.FC<{ driver: Driver; onSelect: (d: Driver) => void }> = ({ driver, onSelect }) => (
     <div 
         onClick={() => onSelect(driver)}
-        className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group"
+        className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all group relative overflow-hidden cursor-pointer"
     >
-        <div className="flex items-start gap-4">
-            <img src={driver.avatar} alt={driver.name} className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm" />
+        <div className="flex items-start gap-4 mb-4">
+            <img src={driver.avatar} alt={driver.firstName} className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm" />
             <div className="flex-1">
                 <div className="flex justify-between items-start">
-                     <h4 className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors">{driver.name}</h4>
-                     {driver.status === 'BANNED' && <Ban size={16} className="text-red-500"/>}
+                     <h4 className="font-bold text-gray-900 text-lg group-hover:text-primary-600 transition-colors">{driver.firstName} {driver.lastName}</h4>
                 </div>
                 <p className="text-xs text-gray-500 mb-2">{driver.licenseNumber}</p>
                 <div className="flex items-center gap-2">
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${driver.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : driver.status === 'BANNED' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}`}>
                         {driver.status === 'BANNED' ? 'BANNIT' : driver.status}
                     </span>
+                    {driver.currentJob && (
+                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase flex items-center gap-1">
+                            <Briefcase size={10}/> En mission
+                        </span>
+                    )}
                 </div>
             </div>
         </div>
         
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2">
              <div className="bg-gray-50 p-2 rounded text-center">
                  <span className="block text-xs text-gray-400 uppercase font-bold">Avis Client</span>
                  <div className="flex items-center justify-center gap-1 text-yellow-500 font-bold text-sm">
@@ -405,11 +528,6 @@ const DriverCard: React.FC<{ driver: Driver; onSelect: (d: Driver) => void }> = 
                  <span className="block text-xs text-gray-400 uppercase font-bold">Ponctualité</span>
                  <span className="text-gray-700 font-bold text-sm">{driver.punctualityRating}</span>
              </div>
-        </div>
-
-        <div className="mt-3 pt-3 border-t border-gray-50 flex justify-between items-center text-xs text-gray-500">
-            <span className="flex items-center gap-1"><Car size={12}/> {driver.totalTrips} courses</span>
-            <span className="flex items-center gap-1"><Phone size={12}/> {driver.phone}</span>
         </div>
     </div>
 );
@@ -725,15 +843,69 @@ const OwnerDashboard = () => {
     // Modals state
     const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
     const [isAddDriverOpen, setIsAddDriverOpen] = useState(false);
+    const [isDriverDetailOpen, setIsDriverDetailOpen] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+    const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
 
-    // MOCK FINANCE DATA FOR OWNER
+    // MOCK FINANCE DATA FOR OWNER (ENRICHED)
     const OWNER_FINANCE_DATA = [
-        { id: 1, date: '25 Oct 2023', vehicle: 'Toyota Prado', rentalType: '24 Heures', duration: '1 Jour', startDate: '24 Oct', endDate: '25 Oct', gross: 250000, commission: 37500, net: 212500, status: 'PAYÉ' },
-        { id: 2, date: '22 Oct 2023', vehicle: 'Renault Camion', rentalType: 'Journée (8h-18h)', duration: '10 Heures', startDate: '22 Oct', endDate: '22 Oct', gross: 450000, commission: 90000, net: 360000, status: 'PAYÉ' },
-        { id: 3, date: '18 Oct 2023', vehicle: 'Toyota Prado', rentalType: '24 Heures', duration: '3 Jours', startDate: '15 Oct', endDate: '18 Oct', gross: 750000, commission: 112500, net: 637500, status: 'EN ATTENTE' },
-        { id: 4, date: '15 Oct 2023', vehicle: 'Toyota Prado', rentalType: 'Demi-Journée', duration: '4 Heures', startDate: '15 Oct', endDate: '15 Oct', gross: 125000, commission: 18750, net: 106250, status: 'PAYÉ' },
-        { id: 5, date: '10 Oct 2023', vehicle: 'Renault Camion', rentalType: 'Province', duration: '2 Jours', startDate: '08 Oct', endDate: '10 Oct', gross: 1200000, commission: 240000, net: 960000, status: 'PAYÉ' },
+        { 
+            id: 1, 
+            date: '25 Oct 2023', 
+            vehicle: 'Toyota Prado', 
+            vehicleImage: 'https://images.unsplash.com/photo-1533473359331-0135ef1bcfb0?auto=format&fit=crop&q=80&w=200',
+            rentalType: '24 Heures', 
+            duration: '1 Jour', 
+            startDate: '24 Oct', 
+            endDate: '25 Oct', 
+            gross: 250000, 
+            commission: 37500, 
+            net: 212500, 
+            status: 'PAYÉ',
+            clientName: 'Jean Rakoto',
+            clientAvatar: 'https://i.pravatar.cc/150?u=a',
+            paymentMethod: 'MVola',
+            transactionRef: 'TX-88291-MC',
+            bookingRef: 'BK-2023-089'
+        },
+        { 
+            id: 2, 
+            date: '22 Oct 2023', 
+            vehicle: 'Renault Camion', 
+            vehicleImage: 'https://images.unsplash.com/photo-1586058090333-d85452296c02?auto=format&fit=crop&q=80&w=200',
+            rentalType: 'Journée (8h-18h)', 
+            duration: '10 Heures', 
+            startDate: '22 Oct', 
+            endDate: '22 Oct', 
+            gross: 450000, 
+            commission: 90000, 
+            net: 360000, 
+            status: 'PAYÉ',
+            clientName: 'Construction Co.',
+            clientAvatar: 'https://i.pravatar.cc/150?u=b',
+            paymentMethod: 'Virement',
+            transactionRef: 'TX-77312-MC',
+            bookingRef: 'BK-2023-085'
+        },
+        { 
+            id: 3, 
+            date: '18 Oct 2023', 
+            vehicle: 'Toyota Prado', 
+            vehicleImage: 'https://images.unsplash.com/photo-1533473359331-0135ef1bcfb0?auto=format&fit=crop&q=80&w=200',
+            rentalType: '24 Heures', 
+            duration: '3 Jours', 
+            startDate: '15 Oct', 
+            endDate: '18 Oct', 
+            gross: 750000, 
+            commission: 112500, 
+            net: 637500, 
+            status: 'EN ATTENTE',
+            clientName: 'Sophie T.',
+            clientAvatar: 'https://i.pravatar.cc/150?u=c',
+            paymentMethod: 'Orange Money',
+            transactionRef: 'TX-99102-MC',
+            bookingRef: 'BK-2023-082'
+        },
     ];
 
     const totalGross = OWNER_FINANCE_DATA.reduce((acc, curr) => acc + curr.gross, 0);
@@ -741,11 +913,14 @@ const OwnerDashboard = () => {
     const totalNet = OWNER_FINANCE_DATA.reduce((acc, curr) => acc + curr.net, 0);
 
     // --- DRIVERS LOGIC ---
-    const handleDriverAction = (action: 'BAN' | 'ACTIVATE') => {
-        if (!selectedDriver) return;
-        const updatedDrivers = drivers.map(d => d.id === selectedDriver.id ? {...d, status: action === 'BAN' ? 'BANNED' : 'ACTIVE'} : d);
-        setDrivers(updatedDrivers as any);
-        setSelectedDriver({...selectedDriver, status: action === 'BAN' ? 'BANNED' : 'ACTIVE'} as any);
+    const handleDriverAction = (driver: Driver) => {
+        if(drivers.find(d => d.id === driver.id)) {
+             setDrivers(drivers.map(d => d.id === driver.id ? driver : d));
+        } else {
+            setDrivers([...drivers, driver]);
+        }
+        setIsAddDriverOpen(false);
+        setSelectedDriver(null);
     };
 
     // --- FLEET LOGIC ---
@@ -764,7 +939,8 @@ const OwnerDashboard = () => {
         isAvailable: true,
         status: 'AVAILABLE',
         driverOption: DriverOption.OPTIONAL,
-        unlimitedMileage: false
+        unlimitedMileage: false,
+        unavailableDates: []
     });
 
     const handleAddVehicle = () => {
@@ -780,11 +956,402 @@ const OwnerDashboard = () => {
         setSelectedVehicle(null);
     };
 
+    const DriverManageModal = ({ driver, onClose, onSave }: { driver: Driver | null, onClose: () => void, onSave: (d: Driver) => void }) => {
+        const [formData, setFormData] = useState<Partial<Driver>>(driver || {
+            firstName: '',
+            lastName: '',
+            cin: '',
+            licenseNumber: '',
+            phone: '',
+            status: 'ACTIVE',
+            avatar: 'https://i.pravatar.cc/150?u=new',
+            rating: 5.0,
+            totalTrips: 0,
+            joinDate: new Date().toISOString().split('T')[0],
+        });
+    
+        const handleSubmit = () => {
+            if (!formData.firstName || !formData.lastName || !formData.licenseNumber) return;
+            onSave({
+                id: driver?.id || `d-${Date.now()}`,
+                ...formData as Driver
+            });
+        };
+    
+        return (
+            <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in duration-200">
+                <div className="bg-white rounded-2xl w-full max-w-2xl p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-xl font-bold text-gray-900">{driver ? 'Modifier Chauffeur' : 'Ajouter un Chauffeur'}</h3>
+                        <button onClick={onClose}><X className="text-gray-400 hover:text-red-500" /></button>
+                    </div>
+                    
+                    <div className="flex justify-center mb-6">
+                        <div className="w-24 h-24 bg-gray-100 rounded-full overflow-hidden border-4 border-white shadow-lg relative group cursor-pointer">
+                            <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <UploadCloud className="text-white"/>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Prénom</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.firstName} 
+                                    onChange={e => setFormData({...formData, firstName: e.target.value})}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Ex: Jean"
+                                />
+                            </div>
+                             <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Nom</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.lastName} 
+                                    onChange={e => setFormData({...formData, lastName: e.target.value})}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Ex: Rakoto"
+                                />
+                            </div>
+                        </div>
+                         <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">CIN (Carte d'identité)</label>
+                            <input 
+                                type="text" 
+                                value={formData.cin} 
+                                onChange={e => setFormData({...formData, cin: e.target.value})}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary-500 font-mono"
+                                placeholder="Ex: 101 222 333 444"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Numéro Permis</label>
+                            <input 
+                                type="text" 
+                                value={formData.licenseNumber} 
+                                onChange={e => setFormData({...formData, licenseNumber: e.target.value})}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Ex: PERM-123-MG"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Téléphone</label>
+                            <input 
+                                type="tel" 
+                                value={formData.phone} 
+                                onChange={e => setFormData({...formData, phone: e.target.value})}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Ex: 034 00 000 00"
+                            />
+                        </div>
+
+                         {/* Documents Upload Section */}
+                        <div className="pt-4 border-t border-gray-100">
+                             <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Documents Requis</label>
+                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                 {/* Upload Box for CIN */}
+                                 <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-primary-400 hover:bg-primary-50 transition-all cursor-pointer group">
+                                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 group-hover:text-primary-600 mb-2">
+                                         <CIDIcon size={20}/>
+                                     </div>
+                                     <span className="text-xs font-bold text-gray-700">Scan CIN</span>
+                                     <span className="text-[10px] text-gray-400 mt-1">R/V Lisible</span>
+                                     <span className="mt-2 text-[10px] font-bold text-primary-600 bg-white px-2 py-0.5 rounded border border-primary-100 group-hover:bg-primary-600 group-hover:text-white transition-colors">Ajouter</span>
+                                 </div>
+ 
+                                 {/* Upload Box for License */}
+                                 <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-primary-400 hover:bg-primary-50 transition-all cursor-pointer group">
+                                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 group-hover:text-primary-600 mb-2">
+                                         <FileText size={20}/>
+                                     </div>
+                                     <span className="text-xs font-bold text-gray-700">Permis</span>
+                                     <span className="text-[10px] text-gray-400 mt-1">Biométrique</span>
+                                     <span className="mt-2 text-[10px] font-bold text-primary-600 bg-white px-2 py-0.5 rounded border border-primary-100 group-hover:bg-primary-600 group-hover:text-white transition-colors">Ajouter</span>
+                                 </div>
+ 
+                                 {/* Upload Box for Residence */}
+                                 <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-primary-400 hover:bg-primary-50 transition-all cursor-pointer group">
+                                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 group-hover:text-primary-600 mb-2">
+                                         <Home size={20}/>
+                                     </div>
+                                     <span className="text-xs font-bold text-gray-700">Certif. Résidence</span>
+                                     <span className="text-[10px] text-gray-400 mt-1">Moins de 3 mois</span>
+                                     <span className="mt-2 text-[10px] font-bold text-primary-600 bg-white px-2 py-0.5 rounded border border-primary-100 group-hover:bg-primary-600 group-hover:text-white transition-colors">Ajouter</span>
+                                 </div>
+                             </div>
+                        </div>
+                        
+                        {driver && (
+                            <div className="pt-2">
+                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Statut</label>
+                                <div className="flex bg-gray-50 p-1 rounded-lg">
+                                    {['ACTIVE', 'INACTIVE', 'BANNED'].map(s => (
+                                        <button
+                                            key={s}
+                                            onClick={() => setFormData({...formData, status: s as any})}
+                                            className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${formData.status === s ? 'bg-white shadow text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                                        >
+                                            {s}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+    
+                        <button 
+                            onClick={handleSubmit}
+                            className="w-full bg-secondary-900 text-white font-bold py-3 rounded-xl hover:bg-secondary-800 transition-all mt-4"
+                        >
+                            {driver ? 'Enregistrer les modifications' : 'Ajouter le chauffeur'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const DriverDetailModal = ({ driver, onClose }: { driver: Driver, onClose: () => void }) => {
+        const [subTab, setSubTab] = useState<'INFO' | 'HISTORY'>('INFO');
+
+        const isResidenceExpired = (dateString?: string) => {
+            if (!dateString) return true;
+            const date = new Date(dateString);
+            const now = new Date();
+            const threeMonthsAgo = new Date();
+            threeMonthsAgo.setMonth(now.getMonth() - 3);
+            return date < threeMonthsAgo;
+        };
+
+        const residenceExpired = isResidenceExpired(driver.documents?.residence?.issueDate);
+
+        return (
+            <div className="fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4">
+                <div className="bg-white rounded-2xl w-full max-w-4xl h-[85vh] flex flex-col md:flex-row shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                    
+                    {/* LEFT SIDEBAR (Profile) */}
+                    <div className="md:w-1/3 bg-gray-50 border-r border-gray-100 flex flex-col p-6">
+                         <div className="flex justify-between md:justify-end mb-4">
+                             <button onClick={onClose} className="p-2 bg-white rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors shadow-sm">
+                                 <X size={18} />
+                             </button>
+                         </div>
+                         
+                         <div className="flex flex-col items-center text-center mb-6">
+                             <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden mb-3">
+                                 <img src={driver.avatar} alt={driver.firstName} className="w-full h-full object-cover"/>
+                             </div>
+                             <h2 className="text-xl font-bold text-gray-900">{driver.firstName} {driver.lastName}</h2>
+                             <p className="text-gray-400 text-xs uppercase font-bold tracking-wider mb-2">{driver.licenseNumber}</p>
+                             <div className="flex gap-2 justify-center">
+                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${driver.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                                    {driver.status}
+                                 </span>
+                             </div>
+                         </div>
+
+                         <div className="space-y-4 flex-1">
+                             <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                 <div className="flex justify-between items-center mb-1">
+                                     <span className="text-xs text-gray-400 font-bold uppercase">Note Globale</span>
+                                     <div className="flex text-yellow-500"><Star size={12} fill="currentColor"/></div>
+                                 </div>
+                                 <div className="text-2xl font-black text-gray-900">{driver.rating}<span className="text-sm text-gray-400 font-normal">/5</span></div>
+                             </div>
+                             <div className="grid grid-cols-2 gap-3">
+                                 <div className="bg-white p-3 rounded-xl border border-gray-100 text-center">
+                                     <span className="block text-xl font-bold text-gray-900">{driver.totalTrips}</span>
+                                     <span className="text-[10px] text-gray-400 uppercase font-bold">Courses</span>
+                                 </div>
+                                 <div className="bg-white p-3 rounded-xl border border-gray-100 text-center">
+                                     <span className="block text-xl font-bold text-gray-900">{driver.joinDate.split('-')[0]}</span>
+                                     <span className="text-[10px] text-gray-400 uppercase font-bold">Depuis</span>
+                                 </div>
+                             </div>
+                             <button className="w-full bg-secondary-900 text-white font-bold py-3 rounded-xl hover:bg-secondary-800 flex items-center justify-center gap-2 mt-auto">
+                                <Phone size={16}/> Appeler
+                             </button>
+                         </div>
+                    </div>
+
+                    {/* RIGHT CONTENT */}
+                    <div className="md:w-2/3 flex flex-col bg-white">
+                        <div className="flex border-b border-gray-100 px-6 pt-4">
+                            <button onClick={() => setSubTab('INFO')} className={`px-4 py-4 text-sm font-bold border-b-2 transition-all ${subTab === 'INFO' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>
+                                Vue Générale
+                            </button>
+                            <button onClick={() => setSubTab('HISTORY')} className={`px-4 py-4 text-sm font-bold border-b-2 transition-all ${subTab === 'HISTORY' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>
+                                Historique & Avis
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                            {subTab === 'INFO' && (
+                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
+                                    {driver.currentJob ? (
+                                        <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100 relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 p-4 opacity-10"><Car size={64} className="text-blue-500"/></div>
+                                            <h3 className="text-blue-900 font-bold text-lg mb-4 flex items-center gap-2"><Briefcase size={20}/> Mission en cours</h3>
+                                            
+                                            <div className="flex items-center gap-4 mb-4">
+                                                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center overflow-hidden border border-blue-200">
+                                                    <img src={driver.currentJob.clientAvatar || 'https://i.pravatar.cc/150'} className="w-full h-full object-cover" alt=""/>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-blue-400 uppercase">Client</p>
+                                                    <p className="font-bold text-blue-900">{driver.currentJob.clientName}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="space-y-2 text-sm text-blue-800">
+                                                <div className="flex justify-between border-b border-blue-200 pb-2">
+                                                    <span>Véhicule</span>
+                                                    <span className="font-bold">{driver.currentJob.vehicleName}</span>
+                                                </div>
+                                                <div className="flex justify-between border-b border-blue-200 pb-2">
+                                                    <span>Destination</span>
+                                                    <span className="font-bold">{driver.currentJob.destination}</span>
+                                                </div>
+                                                <div className="flex justify-between border-b border-blue-200 pb-2">
+                                                    <span>Retour prévu</span>
+                                                    <span className="font-bold">{driver.currentJob.returnDate}</span>
+                                                </div>
+                                                <div className="flex justify-between pt-2">
+                                                    <span>Réf. Réservation</span>
+                                                    <span className="font-mono font-bold bg-white px-2 py-0.5 rounded text-blue-600">{driver.currentJob.bookingId}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100 border-dashed">
+                                            <UserIcon size={32} className="text-gray-300 mx-auto mb-2"/>
+                                            <p className="text-gray-500 font-medium">Aucune mission en cours.</p>
+                                            <span className="inline-block mt-2 px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">Disponible</span>
+                                        </div>
+                                    )}
+
+                                    <div>
+                                        <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2"><FileText size={18}/> Documents Identité</h3>
+                                        <div className="space-y-4">
+                                            <div className="flex gap-4">
+                                                <div className="flex-1 p-3 border border-gray-200 rounded-xl bg-gray-50 hover:bg-white transition-colors cursor-pointer group">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="text-xs font-bold text-gray-400 uppercase">CIN</span>
+                                                        <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold">Validé</span>
+                                                    </div>
+                                                    <div className="h-24 bg-gray-200 rounded-lg overflow-hidden relative">
+                                                        {driver.documents?.cin?.url ? (
+                                                            <img src={driver.documents.cin.url} alt="CIN" className="w-full h-full object-cover"/>
+                                                        ) : (
+                                                            <div className="flex items-center justify-center h-full text-gray-400"><FileText/></div>
+                                                        )}
+                                                    </div>
+                                                    <div className="mt-2 text-xs font-mono font-bold text-gray-800">{driver.cin}</div>
+                                                </div>
+
+                                                <div className="flex-1 p-3 border border-gray-200 rounded-xl bg-gray-50 hover:bg-white transition-colors cursor-pointer group">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="text-xs font-bold text-gray-400 uppercase">Permis</span>
+                                                        <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold">Validé</span>
+                                                    </div>
+                                                    <div className="h-24 bg-gray-200 rounded-lg overflow-hidden relative">
+                                                        {driver.documents?.license?.url ? (
+                                                            <img src={driver.documents.license.url} alt="License" className="w-full h-full object-cover"/>
+                                                        ) : (
+                                                            <div className="flex items-center justify-center h-full text-gray-400"><FileText/></div>
+                                                        )}
+                                                    </div>
+                                                    <div className="mt-2 text-xs font-mono font-bold text-gray-800">{driver.licenseNumber}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className={`p-4 rounded-xl border-2 border-dashed ${residenceExpired ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gray-50'}`}>
+                                                <div className="flex items-start justify-between">
+                                                    <div>
+                                                        <span className="text-xs font-bold text-gray-500 uppercase block mb-1">Certificat Résidence</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <FileText size={16} className={residenceExpired ? 'text-red-500' : 'text-green-600'}/>
+                                                            <span className={`font-bold text-sm ${residenceExpired ? 'text-red-700' : 'text-gray-900'}`}>
+                                                                {residenceExpired ? 'Renouvellement Requis' : 'Document à jour'}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-xs text-gray-500 mt-1">
+                                                            Délivré le: {driver.documents?.residence?.issueDate || 'Inconnu'} • Validité 3 mois
+                                                        </p>
+                                                    </div>
+                                                    {residenceExpired && (
+                                                        <button className="text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-red-700">
+                                                            Mettre à jour
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {subTab === 'HISTORY' && (
+                                 <div className="animate-in fade-in slide-in-from-bottom-2">
+                                     <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2"><Clock size={18}/> Dernières Courses</h3>
+                                     
+                                     <div className="relative border-l-2 border-gray-100 ml-4 space-y-8 my-4">
+                                        {driver.history && driver.history.length > 0 ? (
+                                            driver.history.map((trip) => (
+                                                <div key={trip.id} className="relative pl-8">
+                                                    {/* Timeline dot */}
+                                                    <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-primary-500 shadow-sm z-10"></div>
+                                                    
+                                                    <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+                                                        <div className="flex justify-between items-start mb-3">
+                                                            <div>
+                                                                <h4 className="font-bold text-gray-900 text-base">{trip.clientName}</h4>
+                                                                <p className="text-xs text-gray-500 font-medium flex items-center gap-1"><Car size={12}/> {trip.vehicleName}</p>
+                                                            </div>
+                                                            <span className="text-xs bg-gray-50 text-gray-500 px-2 py-1 rounded font-bold">{trip.date}</span>
+                                                        </div>
+                                                        
+                                                        <div className="flex items-center justify-between border-t border-gray-50 pt-3 mt-2">
+                                                            <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600">
+                                                                <Clock size={14} className="text-primary-500"/>
+                                                                {trip.duration}
+                                                            </div>
+                                                            <div className="flex items-center gap-1 text-yellow-500 font-bold text-xs bg-yellow-50 px-2 py-1 rounded-full border border-yellow-100">
+                                                                <Star size={10} fill="currentColor"/> {trip.rating}/5
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="pl-6 py-4">
+                                                <div className="text-center p-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                                    <History size={24} className="mx-auto text-gray-300 mb-2"/>
+                                                    <p className="text-gray-500 italic text-sm">Aucun historique de course disponible.</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     const VehicleManageModal = ({ vehicle: initialVehicle, onClose }: { vehicle: Vehicle, onClose: () => void }) => {
         const [subTab, setSubTab] = useState<'SUMMARY' | 'INFO' | 'CALENDAR' | 'PRICING' | 'HISTORY' | 'DOCUMENTS'>('SUMMARY');
         const [currentDate, setCurrentDate] = useState(new Date());
         const [vehicleData, setVehicleData] = useState<Vehicle>(initialVehicle);
         const [isUnlimitedMileage, setIsUnlimitedMileage] = useState(vehicleData.unlimitedMileage || false);
+
+        // Calendar state
+        const [calendarMonth, setCalendarMonth] = useState(new Date());
 
         const updatePricing = (field: string, value: number) => {
              setVehicleData(prev => ({
@@ -797,11 +1364,65 @@ const OwnerDashboard = () => {
              setVehicleData(prev => ({ ...prev, [field]: value }));
         };
 
-        const [unavailableDates, setUnavailableDates] = useState<string[]>(vehicleData.unavailableDates || []);
+        const toggleAvailability = (dateStr: string) => {
+            const currentUnavailable = vehicleData.unavailableDates || [];
+            let newUnavailable;
+            if (currentUnavailable.includes(dateStr)) {
+                newUnavailable = currentUnavailable.filter(d => d !== dateStr);
+            } else {
+                newUnavailable = [...currentUnavailable, dateStr];
+            }
+            setVehicleData(prev => ({ ...prev, unavailableDates: newUnavailable }));
+        };
+
+        const changeCalendarMonth = (delta: number) => {
+            const newDate = new Date(calendarMonth);
+            newDate.setMonth(newDate.getMonth() + delta);
+            setCalendarMonth(newDate);
+        };
+
+        const renderCalendar = () => {
+            const year = calendarMonth.getFullYear();
+            const month = calendarMonth.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const startDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+
+            const grid = [];
+            // Empty cells for start padding
+            for(let i=0; i < startDay; i++) grid.push(<div key={`empty-${i}`} className="h-16 bg-gray-50/50 border border-transparent"></div>);
+            
+            for(let i=1; i<=daysInMonth; i++) {
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                const isUnavailable = vehicleData.unavailableDates?.includes(dateStr);
+                const isPast = new Date(dateStr) < new Date(new Date().setHours(0,0,0,0));
+
+                grid.push(
+                    <button 
+                        key={i}
+                        disabled={isPast}
+                        onClick={() => toggleAvailability(dateStr)}
+                        className={`h-16 rounded-lg flex flex-col items-center justify-center text-sm font-bold border transition-all relative group
+                            ${isPast ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 
+                              isUnavailable ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' :
+                              'bg-white text-green-700 border-green-200 hover:bg-green-50 hover:border-green-300'}
+                        `}
+                    >
+                        <span className="text-lg">{i}</span>
+                        {!isPast && (
+                            <span className={`text-[9px] uppercase font-bold px-1.5 rounded ${isUnavailable ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                                {isUnavailable ? 'Bloqué' : 'Libre'}
+                            </span>
+                        )}
+                    </button>
+                );
+            }
+            return grid;
+        };
         
         return (
             <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-                <div className="bg-white rounded-3xl w-full max-w-4xl h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+                <div className="bg-white rounded-3xl w-full max-w-4xl h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
                     {/* Header */}
                     <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                         <div className="flex items-center gap-4">
@@ -824,14 +1445,14 @@ const OwnerDashboard = () => {
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex border-b border-gray-100 bg-white px-6">
-                        {['SUMMARY', 'INFO', 'PRICING', 'DOCUMENTS'].map((t) => (
+                    <div className="flex border-b border-gray-100 bg-white px-6 overflow-x-auto">
+                        {['SUMMARY', 'INFO', 'CALENDAR', 'PRICING', 'HISTORY', 'DOCUMENTS'].map((t) => (
                             <button 
                                 key={t}
                                 onClick={() => setSubTab(t as any)}
-                                className={`px-4 py-4 text-xs font-bold tracking-wider border-b-2 transition-all ${subTab === t ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                                className={`px-4 py-4 text-xs font-bold tracking-wider border-b-2 transition-all whitespace-nowrap ${subTab === t ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
                             >
-                                {t === 'SUMMARY' ? 'VUE D\'ENSEMBLE' : t === 'INFO' ? 'INFOS & DESC' : t === 'PRICING' ? 'TARIFS & KM' : 'DOCUMENTS'}
+                                {t === 'SUMMARY' ? 'VUE D\'ENSEMBLE' : t === 'INFO' ? 'INFOS & DESC' : t === 'CALENDAR' ? 'CALENDRIER' : t === 'PRICING' ? 'TARIFS & KM' : t === 'HISTORY' ? 'HISTORIQUE' : 'DOCUMENTS'}
                             </button>
                         ))}
                     </div>
@@ -884,6 +1505,32 @@ const OwnerDashboard = () => {
                                      </div>
                                  </div>
                              </div>
+                        )}
+
+                        {subTab === 'CALENDAR' && (
+                            <div className="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                <div className="flex justify-between items-center mb-6">
+                                    <div className="flex items-center gap-4">
+                                        <button onClick={() => changeCalendarMonth(-1)} className="p-2 hover:bg-gray-100 rounded-lg"><ChevronLeft size={20}/></button>
+                                        <h3 className="text-lg font-bold text-gray-900 capitalize">
+                                            {calendarMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                                        </h3>
+                                        <button onClick={() => changeCalendarMonth(1)} className="p-2 hover:bg-gray-100 rounded-lg"><ChevronRight size={20}/></button>
+                                    </div>
+                                    <div className="flex gap-4 text-xs font-bold">
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div> Disponible</div>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 bg-red-100 border border-red-300 rounded"></div> Indisponible</div>
+                                    </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-bold text-gray-400 uppercase">
+                                    {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(d => <div key={d}>{d}</div>)}
+                                </div>
+                                <div className="grid grid-cols-7 gap-2">
+                                    {renderCalendar()}
+                                </div>
+                                <p className="text-center text-xs text-gray-400 mt-4">Cliquez sur une date pour bloquer/débloquer la disponibilité.</p>
+                            </div>
                         )}
 
                         {subTab === 'PRICING' && (
@@ -974,6 +1621,60 @@ const OwnerDashboard = () => {
                                         </div>
                                     )}
                                 </div>
+                            </div>
+                        )}
+                        
+                        {subTab === 'HISTORY' && (
+                            <div className="space-y-6">
+                                <div className="flex justify-between items-center mb-4">
+                                     <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2"><History size={18}/> Historique des Locations</h3>
+                                     <span className="text-sm text-gray-500 font-medium">Total: {vehicleData.history?.length || 0} courses</span>
+                                </div>
+                                {vehicleData.history && vehicleData.history.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {vehicleData.history.map((trip) => (
+                                            <div key={trip.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                                                <div className="flex justify-between items-start">
+                                                    <div className="flex items-center gap-4">
+                                                        <img src={trip.clientAvatar || 'https://i.pravatar.cc/150'} alt={trip.client} className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"/>
+                                                        <div>
+                                                            <h4 className="font-bold text-gray-900">{trip.client}</h4>
+                                                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                                                                <span className="bg-gray-100 px-2 py-0.5 rounded font-mono font-bold text-gray-600">{trip.startDate} - {trip.endDate}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${trip.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                            {trip.status === 'COMPLETED' ? 'Terminé' : 'En cours'}
+                                                        </span>
+                                                        <div className="font-bold text-secondary-900 mt-2">{trip.amount.toLocaleString()} Ar</div>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-4 pt-4 border-t border-gray-50 flex justify-between items-center text-sm">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-gray-400 font-medium">Chauffeur:</span>
+                                                        {trip.driverName ? (
+                                                            <span className="font-bold text-gray-700 flex items-center gap-1"><UserIcon size={14}/> {trip.driverName}</span>
+                                                        ) : (
+                                                            <span className="font-bold text-gray-400 italic">Sans Chauffeur</span>
+                                                        )}
+                                                    </div>
+                                                    {trip.rating && (
+                                                        <div className="flex items-center gap-1 text-yellow-500 font-bold bg-yellow-50 px-2 py-0.5 rounded-full">
+                                                            <Star size={12} fill="currentColor"/> {trip.rating}/5
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-200">
+                                        <Car size={32} className="mx-auto text-gray-300 mb-3"/>
+                                        <p className="text-gray-500 italic">Aucun historique disponible pour ce véhicule.</p>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -1069,57 +1770,140 @@ const OwnerDashboard = () => {
                                 <p className="text-gray-500 text-sm font-medium">Revenus du mois</p>
                                 <h3 className="text-3xl font-black text-gray-900">2.5M <span className="text-sm text-gray-400">Ar</span></h3>
                             </div>
-                             {/* ... Other overview cards ... */}
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="p-3 bg-purple-50 text-purple-600 rounded-xl"><Users size={24}/></div>
+                                </div>
+                                <p className="text-gray-500 text-sm font-medium">Chauffeurs Libres</p>
+                                <h3 className="text-3xl font-black text-gray-900">
+                                    {drivers.filter(d => !d.currentJob).length}/{drivers.length}
+                                </h3>
+                            </div>
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="p-3 bg-orange-50 text-orange-600 rounded-xl"><Star size={24}/></div>
+                                </div>
+                                <p className="text-gray-500 text-sm font-medium">Note Moyenne</p>
+                                <h3 className="text-3xl font-black text-gray-900">4.8</h3>
+                            </div>
                         </div>
 
-                        {/* Merged Notifications & Active Rentals */}
+                        {/* Charts & Fleet Status */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                             {/* Active Rentals Table */}
+                             {/* Revenue Graph (Visual Mock) */}
                              <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                                 <h3 className="font-bold text-gray-900 text-lg mb-6">Locations en cours</h3>
-                                 <div className="overflow-x-auto">
-                                     <table className="w-full text-left">
-                                         <thead>
-                                             <tr className="text-xs font-bold text-gray-400 uppercase border-b border-gray-100">
-                                                 <th className="pb-3 pl-2">Véhicule</th>
-                                                 <th className="pb-3">Client</th>
-                                                 <th className="pb-3">Dates</th>
-                                                 <th className="pb-3">Statut</th>
-                                             </tr>
-                                         </thead>
-                                         <tbody className="text-sm">
-                                             <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                                                 <td className="py-4 pl-2 font-bold text-gray-900">Toyota Prado</td>
-                                                 <td className="py-4 text-gray-600">Jean R.</td>
-                                                 <td className="py-4 text-gray-500">12 Oct - 15 Oct</td>
-                                                 <td className="py-4"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">En cours</span></td>
-                                             </tr>
-                                         </tbody>
-                                     </table>
+                                 <div className="flex justify-between items-center mb-8">
+                                     <h3 className="font-bold text-gray-900 text-lg">Évolution des Revenus</h3>
+                                     <select className="bg-gray-50 border border-gray-100 rounded-lg text-xs font-bold px-3 py-1">
+                                         <option>Ce mois</option>
+                                         <option>3 derniers mois</option>
+                                     </select>
+                                 </div>
+                                 <div className="h-64 flex items-end justify-between gap-2 px-2">
+                                     {[35, 45, 30, 60, 75, 50, 65, 80, 55, 40, 70, 90].map((h, i) => (
+                                         <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+                                             <div 
+                                                className="w-full bg-secondary-900 rounded-t-lg transition-all duration-500 relative group-hover:bg-primary-600" 
+                                                style={{ height: `${h}%` }}
+                                             >
+                                                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                                     {(h * 15000).toLocaleString()} Ar
+                                                 </div>
+                                             </div>
+                                             <span className="text-[10px] text-gray-400 font-bold">{i+1}</span>
+                                         </div>
+                                     ))}
                                  </div>
                              </div>
 
-                             {/* Unified Notifications Center */}
+                             {/* Fleet Status Pie (Simulated) */}
                              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                                 <div className="flex items-center justify-between mb-6">
-                                     <h3 className="font-bold text-gray-900 text-lg">Notifications</h3>
-                                     <button className="text-xs font-bold text-primary-600 hover:bg-primary-50 px-2 py-1 rounded">Tout marquer lu</button>
-                                 </div>
-                                 <div className="space-y-4">
-                                     <div className="flex gap-4 p-3 rounded-xl bg-orange-50 border border-orange-100">
-                                         <div className="mt-1"><AlertTriangle size={18} className="text-orange-500"/></div>
-                                         <div>
-                                             <h4 className="text-sm font-bold text-gray-900">Maintenance Requise</h4>
-                                             <p className="text-xs text-gray-600 mt-1">Le contrôle technique du <strong>Duster 4x4</strong> expire dans 5 jours.</p>
+                                 <h3 className="font-bold text-gray-900 text-lg mb-6">État de la Flotte</h3>
+                                 <div className="flex justify-center mb-8 relative">
+                                     <div className="w-48 h-48 rounded-full border-[16px] border-gray-100 flex items-center justify-center relative">
+                                         {/* Simple CSS Conic Gradient for Pie Chart */}
+                                         <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(#2563eb 0% 60%, #10b981 60% 85%, #ef4444 85% 100%)`, mask: 'radial-gradient(transparent 55%, black 56%)', WebkitMask: 'radial-gradient(transparent 55%, black 56%)' }}></div>
+                                         <div className="text-center z-10">
+                                             <span className="block text-3xl font-black text-gray-900">{vehicles.length}</span>
+                                             <span className="text-xs text-gray-500 uppercase font-bold">Total</span>
                                          </div>
                                      </div>
+                                 </div>
+                                 <div className="space-y-3">
+                                     <div className="flex items-center justify-between">
+                                         <div className="flex items-center gap-2">
+                                             <div className="w-3 h-3 rounded-full bg-blue-600"></div>
+                                             <span className="text-sm font-medium text-gray-600">Disponibles</span>
+                                         </div>
+                                         <span className="font-bold text-gray-900">60%</span>
+                                     </div>
+                                     <div className="flex items-center justify-between">
+                                         <div className="flex items-center gap-2">
+                                             <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                             <span className="text-sm font-medium text-gray-600">Loués</span>
+                                         </div>
+                                         <span className="font-bold text-gray-900">25%</span>
+                                     </div>
+                                     <div className="flex items-center justify-between">
+                                         <div className="flex items-center gap-2">
+                                             <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                             <span className="text-sm font-medium text-gray-600">Maintenance</span>
+                                         </div>
+                                         <span className="font-bold text-gray-900">15%</span>
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
+
+                        {/* Recent Activity & Quick Actions */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                             {/* Activity Feed */}
+                             <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                 <h3 className="font-bold text-gray-900 text-lg mb-6">Activité Récente</h3>
+                                 <div className="space-y-6">
+                                     {[
+                                         { icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50', text: "Réservation confirmée pour Toyota Prado", time: "Il y a 2h" },
+                                         { icon: Star, color: 'text-yellow-500', bg: 'bg-yellow-50', text: "Nouvel avis 5 étoiles de Jean Rakoto", time: "Il y a 5h" },
+                                         { icon: Wrench, color: 'text-orange-500', bg: 'bg-orange-50', text: "Maintenance terminée sur Renault Kerax", time: "Hier" },
+                                         { icon: DollarSign, color: 'text-blue-500', bg: 'bg-blue-50', text: "Paiement reçu : 450,000 Ar", time: "Hier" }
+                                     ].map((item, idx) => (
+                                         <div key={idx} className="flex gap-4 items-start">
+                                             <div className={`p-2 rounded-full ${item.bg} ${item.color} mt-1`}>
+                                                 <item.icon size={16}/>
+                                             </div>
+                                             <div>
+                                                 <p className="text-sm font-bold text-gray-800">{item.text}</p>
+                                                 <p className="text-xs text-gray-400">{item.time}</p>
+                                             </div>
+                                         </div>
+                                     ))}
+                                 </div>
+                             </div>
+
+                             {/* Quick Actions Panel */}
+                             <div className="bg-secondary-900 text-white rounded-2xl shadow-lg p-6 relative overflow-hidden">
+                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary-600 rounded-full blur-2xl opacity-20 -mr-10 -mt-10"></div>
+                                 <h3 className="font-bold text-lg mb-6 relative z-10">Actions Rapides</h3>
+                                 <div className="space-y-3 relative z-10">
+                                     <button onClick={handleAddVehicle} className="w-full flex items-center justify-between bg-white/10 hover:bg-white/20 p-4 rounded-xl transition-colors backdrop-blur-sm border border-white/10 group">
+                                         <span className="font-bold text-sm flex items-center gap-3"><Car size={18}/> Ajouter Véhicule</span>
+                                         <Plus size={16} className="text-gray-400 group-hover:text-white transition-colors"/>
+                                     </button>
+                                     <button onClick={() => { setSelectedDriver(null); setIsAddDriverOpen(true); }} className="w-full flex items-center justify-between bg-white/10 hover:bg-white/20 p-4 rounded-xl transition-colors backdrop-blur-sm border border-white/10 group">
+                                         <span className="font-bold text-sm flex items-center gap-3"><UserIcon size={18}/> Nouveau Chauffeur</span>
+                                         <Plus size={16} className="text-gray-400 group-hover:text-white transition-colors"/>
+                                     </button>
+                                     <button className="w-full flex items-center justify-between bg-white/10 hover:bg-white/20 p-4 rounded-xl transition-colors backdrop-blur-sm border border-white/10 group">
+                                         <span className="font-bold text-sm flex items-center gap-3"><FileText size={18}/> Exporter Rapport</span>
+                                         <Download size={16} className="text-gray-400 group-hover:text-white transition-colors"/>
+                                     </button>
                                  </div>
                              </div>
                         </div>
                     </div>
                 )}
 
-                {/* ... Fleet, Drivers tabs similar to before ... */}
+                {/* Fleet Content */}
                 {activeTab === 'FLEET' && (
                      <div className="animate-in fade-in duration-500">
                          <div className="flex justify-between items-center mb-8">
@@ -1130,7 +1914,11 @@ const OwnerDashboard = () => {
                          </div>
                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                              {vehicles.map(vehicle => (
-                                 <div key={vehicle.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition-all">
+                                 <div 
+                                    key={vehicle.id} 
+                                    onClick={() => setSelectedVehicle(vehicle)}
+                                    className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+                                 >
                                      <div className="h-48 overflow-hidden relative">
                                          <img src={vehicle.image} alt={vehicle.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
                                          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded text-xs font-bold shadow-sm">
@@ -1142,13 +1930,44 @@ const OwnerDashboard = () => {
                                          <p className="text-gray-500 text-sm mb-4">{vehicle.location} • {vehicle.type}</p>
                                          <div className="flex justify-between items-center border-t border-gray-50 pt-4">
                                              <span className="font-bold text-secondary-900">{vehicle.pricePerDay.toLocaleString()} Ar/j</span>
-                                             <button onClick={() => setSelectedVehicle(vehicle)} className="text-primary-600 font-bold text-sm hover:bg-primary-50 px-3 py-1.5 rounded-lg transition-colors">Gérer</button>
+                                             <div className="flex gap-2">
+                                                 <span className="text-xs bg-gray-50 text-gray-400 px-2 py-1 rounded font-bold uppercase">{vehicle.history?.length || 0} Trips</span>
+                                             </div>
                                          </div>
                                      </div>
                                  </div>
                              ))}
                          </div>
                      </div>
+                )}
+
+                {/* DRIVERS Tab Content */}
+                {activeTab === 'DRIVERS' && (
+                    <div className="animate-in fade-in duration-500">
+                        <div className="flex justify-between items-center mb-8">
+                            <h2 className="text-2xl font-bold text-gray-900">Mes Chauffeurs</h2>
+                            <button onClick={() => { setSelectedDriver(null); setIsAddDriverOpen(true); }} className="bg-secondary-900 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-secondary-800 transition-colors">
+                                <Plus size={20}/> Nouveau Chauffeur
+                            </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {drivers.map(driver => (
+                                <DriverCard 
+                                    key={driver.id} 
+                                    driver={driver} 
+                                    onSelect={(d) => { setSelectedDriver(d); setIsDriverDetailOpen(true); }} 
+                                />
+                            ))}
+                            {drivers.length === 0 && (
+                                <div className="col-span-full py-12 text-center bg-white rounded-2xl border border-dashed border-gray-200">
+                                    <UserIcon size={48} className="mx-auto text-gray-300 mb-4"/>
+                                    <p className="text-gray-500 font-medium">Aucun chauffeur enregistré.</p>
+                                    <button onClick={() => setIsAddDriverOpen(true)} className="text-primary-600 font-bold mt-2 hover:underline">Ajouter mon premier chauffeur</button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 )}
                 
                 {/* Finance Tab */}
@@ -1183,35 +2002,47 @@ const OwnerDashboard = () => {
 
                          {/* Detailed Transactions Table */}
                          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                             <div className="p-6 border-b border-gray-100">
+                             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                                  <h3 className="font-bold text-lg text-gray-900">Détail des transactions</h3>
+                                 <span className="text-xs text-gray-400 italic">Cliquez sur une ligne pour voir le détail</span>
                              </div>
                              <div className="overflow-x-auto">
                                  <table className="w-full text-left">
                                      <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-bold">
                                          <tr>
+                                             <th className="px-6 py-4">Booking ID</th>
                                              <th className="px-6 py-4">Date</th>
-                                             <th className="px-6 py-4">Véhicule</th>
-                                             <th className="px-6 py-4">Type Location</th>
+                                             <th className="px-6 py-4">Client</th>
+                                             <th className="px-6 py-4">Détails Location</th>
                                              <th className="px-6 py-4 text-right">Montant Brut</th>
-                                             <th className="px-6 py-4 text-right">Commission (15%)</th>
                                              <th className="px-6 py-4 text-right">Net Perçu</th>
                                              <th className="px-6 py-4 text-center">Statut</th>
                                          </tr>
                                      </thead>
                                      <tbody className="divide-y divide-gray-50 text-sm">
                                          {OWNER_FINANCE_DATA.map(item => (
-                                             <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                                             <tr 
+                                                key={item.id} 
+                                                onClick={() => setSelectedTransaction(item)}
+                                                className="hover:bg-primary-50/50 transition-colors cursor-pointer group"
+                                             >
+                                                  <td className="px-6 py-4">
+                                                     <span className="font-mono font-bold text-primary-600 bg-primary-50 px-2 py-0.5 rounded text-xs">{item.bookingRef}</span>
+                                                  </td>
                                                  <td className="px-6 py-4 text-gray-900 font-bold">{item.date}</td>
                                                  <td className="px-6 py-4">
-                                                     <div className="font-medium text-gray-900">{item.vehicle}</div>
+                                                     <div className="flex items-center gap-3">
+                                                         <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden border border-white shadow-sm">
+                                                             <img src={item.clientAvatar} alt="" className="w-full h-full object-cover"/>
+                                                         </div>
+                                                         <span className="font-bold text-gray-900">{item.clientName}</span>
+                                                     </div>
                                                  </td>
                                                  <td className="px-6 py-4">
-                                                     <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-bold">{item.rentalType}</span>
-                                                     <div className="text-xs text-gray-400 mt-1">{item.duration}</div>
+                                                     <div className="font-medium text-gray-900">{item.vehicle}</div>
+                                                     <div className="text-xs text-gray-500 mt-1">{item.rentalType} • {item.duration}</div>
                                                  </td>
                                                  <td className="px-6 py-4 text-right font-medium text-gray-900">{item.gross.toLocaleString()} Ar</td>
-                                                 <td className="px-6 py-4 text-right text-red-500">-{item.commission.toLocaleString()} Ar</td>
                                                  <td className="px-6 py-4 text-right font-black text-green-600">{item.net.toLocaleString()} Ar</td>
                                                  <td className="px-6 py-4 text-center">
                                                      <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${item.status === 'PAYÉ' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
@@ -1228,7 +2059,7 @@ const OwnerDashboard = () => {
                 )}
                 
                 {activeTab === 'PROFILE' && (
-                    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
+                    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
                         <div className="flex justify-between items-center">
                              <h2 className="text-2xl font-bold text-gray-900">Mon Profil Propriétaire</h2>
                              <button className="bg-secondary-900 text-white px-6 py-2 rounded-xl font-bold hover:bg-secondary-800 transition-colors flex items-center gap-2">
@@ -1237,37 +2068,149 @@ const OwnerDashboard = () => {
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {/* Avatar & Main Info */}
+                            {/* Avatar / Selfie Section */}
                             <div className="col-span-1 space-y-6">
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
-                                    <div className="w-32 h-32 mx-auto bg-gray-100 rounded-full mb-4 overflow-hidden border-4 border-white shadow-lg">
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center relative group">
+                                    <div className="w-32 h-32 mx-auto bg-gray-100 rounded-full mb-4 overflow-hidden border-4 border-white shadow-lg relative cursor-pointer">
                                         <img src={currentUser.avatar} alt="Profile" className="w-full h-full object-cover"/>
+                                        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Camera className="text-white mb-1" size={24}/>
+                                            <span className="text-white text-[10px] font-bold uppercase">Changer</span>
+                                        </div>
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900">{currentUser.name}</h3>
-                                    <p className="text-sm text-gray-500 mb-4">{currentUser.email}</p>
+                                    <h3 className="text-lg font-bold text-gray-900 mb-1">Photo de Profil (Selfie)</h3>
+                                    <p className="text-xs text-gray-400 mb-4">Pour la sécurité de la communauté, merci d'utiliser une photo récente de vous.</p>
+                                    
+                                    <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
+                                        <CheckCircle size={12}/> Identité Vérifiée
+                                    </div>
+                                </div>
+                                
+                                <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl">
+                                    <h4 className="font-bold text-blue-900 text-sm mb-2 flex items-center gap-2">
+                                        <ShieldCheck size={16}/> Compte Certifié
+                                    </h4>
+                                    <p className="text-xs text-blue-800 leading-relaxed">
+                                        Vos documents sont valides. Vous pouvez publier des annonces et recevoir des paiements.
+                                    </p>
                                 </div>
                             </div>
 
                             {/* Details Form */}
                             <div className="col-span-1 md:col-span-2 space-y-6">
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                                    <h4 className="font-bold text-lg text-gray-900 mb-6 pb-2 border-b border-gray-50">Informations Personnelles</h4>
+                                    <h4 className="font-bold text-lg text-gray-900 mb-6 pb-2 border-b border-gray-50 flex items-center gap-2">
+                                        <UserIcon size={20} className="text-primary-600"/> Identité & Contact
+                                    </h4>
                                     <div className="grid grid-cols-2 gap-6">
                                         <div className="space-y-1">
-                                            <label className="text-xs font-bold text-gray-400 uppercase">Nom Complet</label>
-                                            <input type="text" value={currentUser.name} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 font-semibold text-gray-900" />
+                                            <label className="text-xs font-bold text-gray-400 uppercase">Nom</label>
+                                            <input 
+                                                type="text" 
+                                                value={currentUser.lastName || ''} 
+                                                onChange={e => setCurrentUser({...currentUser, lastName: e.target.value})}
+                                                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 font-semibold text-gray-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all" 
+                                                placeholder="Votre nom"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-bold text-gray-400 uppercase">Prénom</label>
+                                            <input 
+                                                type="text" 
+                                                value={currentUser.firstName || ''} 
+                                                onChange={e => setCurrentUser({...currentUser, firstName: e.target.value})}
+                                                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 font-semibold text-gray-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all" 
+                                                placeholder="Votre prénom"
+                                            />
                                         </div>
                                         <div className="col-span-2 space-y-1">
-                                            <label className="text-xs font-bold text-gray-400 uppercase">Adresse</label>
-                                            <input type="text" value={currentUser.address || ''} placeholder="Votre adresse..." className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 font-semibold text-gray-900" />
+                                            <label className="text-xs font-bold text-gray-400 uppercase flex items-center gap-2">
+                                                Numéro CIN <span className="text-red-500">*</span>
+                                            </label>
+                                            <div className="relative">
+                                                <CIDIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+                                                <input 
+                                                    type="text" 
+                                                    value={currentUser.cinNumber || ''} 
+                                                    onChange={e => setCurrentUser({...currentUser, cinNumber: e.target.value})}
+                                                    placeholder="Ex: 101 211 589 442" 
+                                                    className="w-full p-3 pl-10 bg-gray-50 rounded-xl border border-gray-200 font-mono text-gray-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all" 
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-bold text-gray-400 uppercase">Téléphone</label>
+                                            <input 
+                                                type="tel" 
+                                                value={currentUser.phone || ''} 
+                                                onChange={e => setCurrentUser({...currentUser, phone: e.target.value})}
+                                                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 font-semibold text-gray-900" 
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-bold text-gray-400 uppercase">Email</label>
+                                            <input 
+                                                type="email" 
+                                                value={currentUser.email || ''} 
+                                                readOnly
+                                                className="w-full p-3 bg-gray-100 rounded-xl border border-gray-200 font-semibold text-gray-500 cursor-not-allowed" 
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                                    <h4 className="font-bold text-lg text-gray-900 mb-6 pb-2 border-b border-gray-50 flex items-center gap-2">
+                                        <Home size={20} className="text-primary-600"/> Adresse & Résidence
+                                    </h4>
+                                    <div className="space-y-4">
+                                         <div className="space-y-1">
+                                            <label className="text-xs font-bold text-gray-400 uppercase">Adresse Physique</label>
+                                            <input 
+                                                type="text" 
+                                                value={currentUser.address || ''} 
+                                                onChange={e => setCurrentUser({...currentUser, address: e.target.value})}
+                                                placeholder="Lot, Ville, Code Postal..." 
+                                                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 font-semibold text-gray-900" 
+                                            />
+                                        </div>
+                                        
+                                        {/* Document Uploads Row */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                            {/* Certificat Résidence */}
+                                            <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-primary-400 hover:bg-primary-50 transition-all cursor-pointer group">
+                                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 group-hover:text-primary-600 mb-2">
+                                                    <FileText size={20}/>
+                                                </div>
+                                                <span className="text-sm font-bold text-gray-700">Certificat Résidence</span>
+                                                <span className="text-[10px] text-gray-400 mt-1">Moins de 3 mois</span>
+                                                {currentUser.documents?.residence?.status === 'VALID' ? (
+                                                    <span className="mt-2 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded flex items-center gap-1"><CheckCircle size={10}/> Validé</span>
+                                                ) : (
+                                                    <span className="mt-2 text-xs font-bold text-primary-600">Téléverser</span>
+                                                )}
+                                            </div>
+
+                                            {/* CIN Upload */}
+                                            <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-primary-400 hover:bg-primary-50 transition-all cursor-pointer group">
+                                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 group-hover:text-primary-600 mb-2">
+                                                    <CIDIcon size={20}/>
+                                                </div>
+                                                <span className="text-sm font-bold text-gray-700">Scan CIN R/V</span>
+                                                <span className="text-[10px] text-gray-400 mt-1">Lisible et clair</span>
+                                                {currentUser.documents?.cin?.status === 'VALID' ? (
+                                                    <span className="mt-2 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded flex items-center gap-1"><CheckCircle size={10}/> Validé</span>
+                                                ) : (
+                                                    <span className="mt-2 text-xs font-bold text-primary-600">Téléverser</span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                                     <h4 className="font-bold text-lg text-gray-900 mb-6 pb-2 border-b border-gray-50 flex items-center justify-between">
-                                        <span>Infos Fiscales & Identité</span>
-                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-bold uppercase">Vérifié</span>
+                                        <span className="flex items-center gap-2"><Briefcase size={20} className="text-primary-600"/> Infos Fiscales (Optionnel)</span>
                                     </h4>
                                     <div className="grid grid-cols-2 gap-6 mb-6">
                                         <div className="space-y-1">
@@ -1288,6 +2231,9 @@ const OwnerDashboard = () => {
             
             {/* MODALS */}
             {selectedVehicle && <VehicleManageModal vehicle={selectedVehicle} onClose={() => setSelectedVehicle(null)} />}
+            {isAddDriverOpen && <DriverManageModal driver={selectedDriver} onClose={() => setIsAddDriverOpen(false)} onSave={handleDriverAction} />}
+            {selectedTransaction && <TransactionDetailModal transaction={selectedTransaction} onClose={() => setSelectedTransaction(null)} />}
+            {selectedDriver && isDriverDetailOpen && <DriverDetailModal driver={selectedDriver} onClose={() => setIsDriverDetailOpen(false)} />}
         </div>
     );
 };
